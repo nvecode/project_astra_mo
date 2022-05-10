@@ -1,0 +1,21 @@
+---
+- name: Install resolvconf for Astra Linux
+  hosts: astra
+  become: true
+  vars:
+    dns: '77.88.8.8'
+  tasks:
+    - name: Install package
+      apt:
+        name: resolvconf
+        update_cache: true
+        cache_valid_time: 86400
+
+    - name: Add DNS-servers in resolv.conf
+      lineinfile:
+        dest: /etc/resolvconf/resolv.conf.d/base
+        line: 'nameserver {{ dns }}'
+        state: present
+
+    - name: Reload resolv
+      shell: resolvconf -u

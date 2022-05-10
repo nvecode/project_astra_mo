@@ -1,0 +1,21 @@
+---
+- name: Install CryptoPro client
+  hosts: astra
+  become: true
+  vars:
+    local_file: /etc/ansible/work_files/linux-amd64_deb.tgz
+    remote_file: /home/client/linux-amd64_deb.tgz
+  tasks:
+    - name: Copy install files CryptoPro to a remote host
+      copy:
+        src: "{{ local_file }}"
+        dest: "{{ remote_file }}"
+
+    - name: Unarchive a install files CryptoPro
+      unarchive:
+        src: "{{ remote_file }}"
+        dest: /home/client
+        remote_src: yes
+
+    - name: Run script bash CryptoPro
+      shell: sh /home/client/linux-amd64_deb/install.sh

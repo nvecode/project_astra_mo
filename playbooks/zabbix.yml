@@ -1,0 +1,36 @@
+---
+- name: Install zabbix-agent for Astra Linux
+  hosts: astra
+  become: true
+  vars:
+    zabbix_server: 192.168.0.200
+  tasks:
+    - name: Install package
+      apt:
+        name: zabbix-agent
+        update_cache: true
+        cache_valid_time: 86400
+    
+    - name: Delete default config zabbix-agent
+      file:
+        path: /etc/zabbix/zabbix_agentd.conf
+        state: absent
+      
+    - name: Config file zabbix-agent
+      lineinfile:
+        dest: /etc/zabbix/zabbix_agentd.conf
+        line: "{{ item }}"
+        state: present
+        create: yes
+      with_items:
+        - 'PidFile=/var/run/zabbix/zabbix_agentd.pid'
+        - 'LogFile=/var/log/zabbix/zabbix_agentd.log'
+        - 'LogFileSize=0'
+        - 'Server={{ zabbix_server }}'
+        - 'Include=/etc/zabbix/zabbix_agentd.d/*.conf'
+    
+    - name: Reload service
+      service:
+        name: zabbix-agent
+        state: restarted
+

@@ -1,0 +1,27 @@
+---
+- name: Setting iptables for Astra Linux
+  hosts: astra
+  become: true
+  vars:
+    f_src_net: 192.168.0.0/24
+  tasks:
+    - name: Config iptables
+      lineinfile:
+        dest: /etc/iptables.rules
+        line: "{{ item }}"
+        state: present
+        create: yes
+      with_items:
+        - '*filter'
+        - ':INPUT DROP [0:0]'
+        - ':FORWARD ACCEPT [0:0]'
+        - ':OUTPUT ACCEPT [0:0]'
+        - '-A INPUT -p icmp -j ACCEPT'
+        - '-A INPUT -s {{f_src_net }} -p tcp -m tcp --dport 22 -m state --state NEW -j ACCEPT'
+        - '-A INPUT -p tcp -m tcp --dport 10050 -m state --state NEW -j ACCEPT'
+        - '-A INPUT -i lo -j ACCEPT'
+        - '-A INPUT -m state --state RELATED,ESTABLISHED -j ACCEPT'
+        - 'COMMIT'
+
+    - name: Save rules
+      shell: iptables-restore < /etc/iptables.rules

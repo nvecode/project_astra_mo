@@ -1,0 +1,22 @@
+--- 
+- name: Install Assistant
+  hosts: astra
+  become: true
+  vars:
+    local_file: /etc/ansible/work_files/assistant_4.8-0_amd64.deb
+    remote_file: /home/client/assistant_4.8-0_amd64.deb
+  tasks:
+    - name: Copy install files to a remote host
+      copy:
+        src: "{{ local_file }}"
+        dest: "{{ remote_file }}"
+  
+    - name: Install deb assistant to a remote client
+      apt:
+        deb: "{{ remote_file }}"
+    
+    - name: Create symbolic link on the desktop
+      file:
+        src: /opt/assistant/bin/assistant
+        dest: /home/client/Desktop/
+        state: link

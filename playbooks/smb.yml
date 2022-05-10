@@ -1,0 +1,37 @@
+---
+- name: Mount directory on SMB
+  hosts: astra
+  become: true
+  vars:
+    smb_username: admin
+    smb_password: admin
+    smb_local_path: /mnt/share
+    smb_remote_path: //192.168.0.104/test
+
+  tasks:
+    - name: Install package
+      apt:
+        name:
+          - cifs-utils
+        update_cache: true
+        cache_valid_time: 86400
+
+    - name: Create dir local
+      file:
+        path: "{{ smb_local_path }}"
+        state: directory
+        mode: 0755
+
+    - name: Mount local dir
+      mount:
+        src: "{{ smb_remote_path }}"
+        name: "{{ smb_local_path }}"
+        fstype: cifs
+        opts: "username={{ smb_username }},password={{ smb_password }}"
+        state: mounted
+
+    - name: Create symlink in on desktop
+      file:
+        src: "{{ smb_local_path }}"
+        dest: /home/{{ ansible_user }}/Desktop
+        state: link

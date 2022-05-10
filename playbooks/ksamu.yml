@@ -1,0 +1,23 @@
+---
+- name: Predinstall Ksamu {{ ansible_user }}
+  hosts: astra
+  become: true
+  vars:
+    ks_local_file: /etc/ansible/work_files/distrib_ksamu_astra_1.6_update.zip
+    ks_remote_file: /home/{{ ansible_user }}/distrib_ksamu_astra_1.6_update.zip
+  tasks:
+    - name: Copy install files to a remote host
+      copy:
+        src: "{{ ks_local_file }}"
+        dest: "{{ ks_remote_file }}"
+
+    - name: Unarchive a install files Ksamu
+      unarchive:
+        src: /home/{{ ansible_user }}/distrib_ksamu_astra_1.6_update.zip
+        dest: /home/{{ ansible_user }}
+        remote_src: yes
+
+    - name: Change privilege file install
+      file:
+        path: /home/{{ ansible_user }}/distrib_ksamu_astra_1.6_update/install.sh
+        mode: o=rx

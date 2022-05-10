@@ -1,0 +1,24 @@
+---
+- name: Create local repo for Astra Linux
+  hosts: astra
+  become: true
+  vars:
+    server: 192.168.0.10
+  tasks:
+    - name: Disable default repo CD-ROM
+      lineinfile:
+        dest: /etc/apt/sources.list
+        regexp: '^deb cdrom'
+        insertbefore: BOF
+        line: '#deb cdrom:[OS Astra Linux 1.6 smolensk - amd64 DVD ]/ smolensk contrib main non-free'
+
+    - name: Config repo source.list
+      lineinfile:
+        dest: /etc/apt/sources.list
+        line: 'deb http://{{ server }}/repo/smolensk/main smolensk main contrib non-free'
+        state: present
+        create: yes
+
+    - name: Update cache apt
+      apt:
+        update_cache: yes
